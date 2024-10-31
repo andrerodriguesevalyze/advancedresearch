@@ -212,6 +212,31 @@
                 background-color: #138496;
                 transform: scale(1.05);
             }
+
+        .field_group {
+            padding: 20px;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+            .field_group .input_container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .field_group .input_field {
+                padding: 10px;
+                font-size: 14px;
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
     </style>
 </head>
 <body>
@@ -219,9 +244,9 @@
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
 
     <div class="group_section" data-intro="Aqui podemos organizar os campos para a pesquisa avançada." data-step="4">
-        <h2>Ordem de campos - Pesquisa Avançada</h2>
+        <h2>Adicionar Campos</h2>
         <div id="groupContainer" class="form_group">
-            <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5">Campos</div>
+            <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5"></div>
         </div>
 
         <button class="button" onclick="addEmptySpace()" data-intro="Clique aqui para adicionar um espaço vazio." data-step="6">
@@ -237,7 +262,7 @@
         <pre id="jsonOutput">
         <button class="button" id="copyButton" onclick="copyJson()" data-tippy-content="Copiar JSON">
         <i class="fas fa-copy"></i> 
-</button>
+    </button>
 <button class="button" id="minifyJsonButton" onclick="minifyJson()" data-tippy-content="Compactar o Json">
         <i class="fas fa-compress"></i> 
 </button>
@@ -305,21 +330,22 @@
             animation: 150
         });
 
-        // Função para adicionar um campo vazio desabilitado
+         //Função para adicionar um campo vazio desabilitado
         function addEmptySpace() {
             const groupContainer = document.getElementById('groupContainer');
             const emptySpace = createEmptySpace();
             groupContainer.appendChild(emptySpace);
         }
 
+
         // Função para criar um campo vazio
         function createEmptySpace() {
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                                                            <label for="emptyspace">Empty Space</label>
-                                                            <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-                                                        `;
+                                                                <label for="emptyspace">Empty Space</label>
+                                                                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                                                            `;
             return emptySpace;
         }
 
@@ -503,9 +529,10 @@
 
         // Função para obter as opções de tipo de pesquisa com base no JSON de entrada
         function getSearchTypeOptionsFromJson(columnName) {
-            const jsonInput = editor.getValue();
-            let jsonConfig;
 
+            if (!editor) {           
+            const jsonInput = editor?.getValue();
+            let jsonConfig;
             try {
                 jsonConfig = JSON.parse(jsonInput);
             } catch (e) {
@@ -514,7 +541,8 @@
             }
 
             const field = jsonConfig.find(f => f.ColumnName === columnName);
-            return field ? field.SearchTypeOptions : [];
+                return field ? field.SearchTypeOptions : [];
+            }
         }
 
         // Função para mapear o tipo de campo de entrada para o tipo de campo JSON
@@ -537,7 +565,8 @@
         function getCategory(columnName) {
             const jsonInput = editor.getValue();
             let jsonConfig;
-
+            console.log("entrou 1");
+            console.log(jsonInput);
             try {
                 jsonConfig = JSON.parse(jsonInput);
             } catch (e) {
@@ -554,7 +583,7 @@
             introJs().start();
         }
 
- 
+
 
         // Inicializar CodeMirror no campo textarea
         var editor;
