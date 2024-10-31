@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Dinâmico</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .field_section, .group_section {
+            width: 45%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .input_container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            width: 23%;
+            position: relative;
+        }
+
+        .input_field {
+            padding: 8px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form_group {
+            border: 1px dashed #999;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form_group_title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .button {
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+            .button:hover {
+                background-color: #0056b3;
+            }
+
+        #jsonOutput {
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="group_section">
+        <h2>Ordem de campos - Pesquisa Avançada</h2>
+        <div id="groupContainer" class="form_group">
+            <div class="form_group_title">Campos</div>
+        </div>
+        <button class="button" onclick="addEmptySpace()">Adicionar Espaço Vazio</button>
+        <button class="button" id="generateJsonButton">Gerar JSON</button>
+        <pre id="jsonOutput"></pre>
+    </div>
+
+    <div class="field_section">
+        <h2>Campos a Mapear</h2>
+        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..."></textarea>
+        <button class="button" onclick="loadJson()">Carregar JSON</button>
+        <div id="fieldsContainer" class="form_group">
+            <!-- Campos do formulário serão gerados aqui -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        // Inicializa o SortableJS para os contêineres
+        new Sortable(document.getElementById('fieldsContainer'), {
+            group: 'shared',
+            animation: 150
+        });
+
+        new Sortable(document.getElementById('groupContainer'), {
+            group: 'shared',
+            animation: 150
+        });
+
+        // Função para adicionar um campo vazio desabilitado
+        function addEmptySpace() {
+            const groupContainer = document.getElementById('groupContainer');
+            const emptySpace = document.createElement('span');
+            emptySpace.className = 'input_container';
+            emptySpace.innerHTML = `
+                <label for="emptyspace">Empty Space</label>
+                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+            `;
+            groupContainer.appendChild(emptySpace);
+        }
+
+        // Função para carregar o JSON e gerar os campos dinamicamente
+        function loadJson() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            let jsonConfig;
+
+            try {
+                jsonConfig = JSON.parse(jsonInput);
+            } catch (e) {
+                alert('JSON inválido. Por favor, verifique o formato do JSON.');
+                return;
+            }
+
+            const fieldsContainer = document.getElementById('fieldsContainer');
+            fieldsContainer.innerHTML = ''; // Limpa os campos existentes
+
+            jsonConfig.forEach(field => {
+                const fieldWrapper = document.createElement('div');
+                fieldWrapper.className = 'input_container';
+
+                const label = document.createElement('label');
+                label.innerText = field.Alias;
+                fieldWrapper.appendChild(label);
+
+                let input;
+                switch (field.FieldType) {
+                    case 'input':
+                        input = document.createElement('input');
+                        input.type = 'text';
+                        break;
+                    case 'datetime':
+                        input = document.createElement('input');
+                        input.type = 'datetime-local';
+                        break;
+                    case 'number':
+                        input = document.createElement('input');
+                        input.type = 'number';
+                        break;
+                    case 'checkbox':
+                        input = document.createElement('input');
+                        input.type = 'checkbox';
+                        break;
+                    case 'emptyspace':
+                        input = document.createElement('div');
+                        input.style.height = '20px';
+                        break;
+                    default:
+                        input = document.createElement('input');
+                        input.type = 'text';
+                }
+
+                input.name = field.ColumnName;
+                input.className = 'input_field';
+                fieldWrapper.appendChild(input);
+                fieldsContainer.appendChild(fieldWrapper);
+            });
+        }
+
+        document.getElementById('generateJsonButton').addEventListener('click', generateJson);
+
+        function generateJson() {
+            const leftContainer = document.getElementById('groupContainer');
+            const fields = leftContainer.querySelectorAll('.input_container');
+            const jsonConfig = [];
+            let order = 1;
+
+            fields.forEach(field => {
+                const label = field.querySelector('label');
+                const input = field.querySelector('input');
+                const columnName = input ? input.name : '';
+                const alias = label ? label.innerText : '';
+                const fieldType = input ? input.type : 'emptyspace';
+                const searchTypeOptions = getSearchTypeOptions(fieldType);
+
+                if (columnName === 'emptyspace') {
+                    jsonConfig.push({
+                        ColumnName: "",
+                        Alias: "",
+                        FieldType: "emptyspace",
+                        Category: "system",
+                        SearchTypeOptions: [],
+                        SearchType: null,
+                        SearchValue: false,
+                        IsSearchFilter: true,
+                        SearchOrder: order,
+                        IsOutput: false,
+                        OutputOrder: order,
+                        FieldValues: null,
+                        Attributes: null
+                    });
+                } else {
+                    jsonConfig.push({
+                        ColumnName: columnName,
+                        Alias: alias,
+                        FieldType: mapFieldType(fieldType),
+                        Category: getCategory(columnName), // Ajuste a categoria conforme necessário
+                        SearchTypeOptions: searchTypeOptions,
+                        SearchType: null,
+                        SearchValue: fieldType === 'datetime-local' ? { min: null, max: null } : null,
+                        IsSearchFilter: true,
+                        SearchOrder: order,
+                        IsOutput: true,
+                        OutputOrder: order,
+                        FieldValues: null,
+                        Attributes: null
+                    });
+                }
+
+                order++;
+            });
+
+            const jsonOutput = {
+                TableAttributes: {
+                    "evalyze-datatable-showtooltip": "true",
+                    "evalyze-datetime-columns": "datahora,DateActivity,Date",
+                    "evalyze-link-columns": "IDTicket",
+                    "evalyze-download-url": "/Templates/RequestHandler?type=[RequestHandlerType]&identifier=[IDTicket]",
+                    "evalyze-hidden-columns": "rn,RequestHandlerType"
+                },
+                JsonConfig: jsonConfig
+            };
+
+            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonOutput, null, 2);
+        }
+
+        function getSearchTypeOptions(fieldType) {
+            switch (fieldType) {
+                case 'datetime-local':
+                    return ['BETWEEN'];
+                case 'text':
+                    return ['EQUAL', 'LIKE', 'NOT LIKE'];
+                case 'number':
+                    return ['EQUAL', 'LIKE', 'NOT LIKE'];
+                case 'checkbox':
+                    return [];
+                default:
+                    return [];
+            }
+        }
+
+        function mapFieldType(inputType) {
+            switch (inputType) {
+                case 'datetime-local':
+                    return 'datetime';
+                case 'text':
+                    return 'input';
+                case 'number':
+                    return 'number';
+                case 'checkbox':
+                    return 'checkbox';
+                default:
+                    return 'emptyspace';
+            }
+        }
+
+        function getCategory(columnName) {
+            const jsonInput = document.getElementById('jsonInput').value;
+            let jsonConfig;
+
+            try {
+                jsonConfig = JSON.parse(jsonInput);
+            } catch (e) {
+                alert('JSON inválido. Por favor, verifique o formato do JSON.');
+                return '';
+            }
+
+            const field = jsonConfig.find(f => f.ColumnName === columnName);
+            return field ? field.Category : '';
+        }
+    </script>
+
+</body>
+</html>
