@@ -81,7 +81,26 @@
             border: 1px solid #ccc;
             margin-top: 10px;
             border-radius: 4px;
+            position: relative;
         }
+
+        #copyButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+            #copyButton:hover {
+                background-color: #218838;
+            }
 
         textarea {
             border: 1px solid #ccc;
@@ -92,32 +111,34 @@
         }
 
         .button-tutorial {
-            background-color: #28a745; 
-            border: 2px solid #218838; 
+            background-color: #28a745;
+            border: 2px solid #218838;
         }
 
             .button-tutorial:hover {
-                background-color: #218838; 
+                background-color: #218838;
             }
     </style>
 </head>
 <body>
     <div class="group_section" data-intro="Aqui podemos organizar os campos para a pesquisa avançada." data-step="4">
         <h2>Ordem de campos - Pesquisa Avançada</h2>
-        <div id="groupContainer" class="form_group" >
-            <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5" >Campos</div>
+        <div id="groupContainer" class="form_group">
+            <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5">Campos</div>
         </div>
         <button class="button" onclick="addEmptySpace()" data-intro="Clique aqui para adicionar um espaço vazio." data-step="6">Adicionar Espaço Vazio</button>
         <button class="button" id="generateJsonButton" data-intro="Após ordenar os campos, carregue em Gerar JSON" data-step="7">Gerar JSON</button>
-        <pre id="jsonOutput"></pre>
+        <pre id="jsonOutput">
+        <button id="copyButton" onclick="copyJson()">Copiar</button>
+        <code id="jsonContent"></code>
+        </pre>
     </div>
 
-    <div class="field_section" >
+    <div class="field_section">
         <button class="button button-tutorial" onclick="startIntro()">Iniciar Tutorial</button>
 
-
         <h2>Campos a Mapear</h2>
-        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..." data-intro="Colar os campos num formato válido Json" data-step="1" ></textarea>
+        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..." data-intro="Colar os campos num formato válido Json" data-step="1"></textarea>
         <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">Carregar JSON</button>
         <div id="fieldsContainer" class="form_group" data-intro="Os campos são gerados de acordo com o JSON fornecido" data-step="3">
             <!-- Campos do formulário serão gerados aqui -->
@@ -127,7 +148,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script>
-      
+
         new Sortable(document.getElementById('fieldsContainer'), {
             group: 'shared',
             animation: 150
@@ -150,9 +171,9 @@
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                            <label for="emptyspace">Empty Space</label>
-                            <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-                        `;
+                                <label for="emptyspace">Empty Space</label>
+                                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                            `;
             return emptySpace;
         }
 
@@ -252,7 +273,7 @@
                 JsonConfig: jsonConfig
             };
 
-            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonOutput, null, 2);
+            document.getElementById('jsonContent').textContent = JSON.stringify(jsonOutput, null, 2);
         }
 
         // Função para extrair dados de um campo
@@ -350,6 +371,16 @@
         // Função para iniciar o guia interativo
         function startIntro() {
             introJs().start();
+        }
+
+        // Função para copiar o JSON para a área de transferência
+        function copyJson() {
+            const jsonOutput = document.getElementById('jsonContent').textContent;
+            navigator.clipboard.writeText(jsonOutput).then(() => {
+                alert('JSON copiado para a área de transferência!');
+            }).catch(err => {
+                alert('Erro ao copiar JSON: ' + err);
+            });
         }
 
     </script>
