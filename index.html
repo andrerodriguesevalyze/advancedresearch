@@ -92,12 +92,12 @@
         }
 
         .button-tutorial {
-            background-color: #28a745; /* Cor de fundo específica para o botão de tutorial */
-            border: 2px solid #218838; /* Borda específica para o botão de tutorial */
+            background-color: #28a745; 
+            border: 2px solid #218838; 
         }
 
             .button-tutorial:hover {
-                background-color: #218838; /* Cor de fundo ao passar o mouse */
+                background-color: #218838; 
             }
     </style>
 </head>
@@ -127,7 +127,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script>
-        // Inicializa o SortableJS para os contêineres
+      
         new Sortable(document.getElementById('fieldsContainer'), {
             group: 'shared',
             animation: 150
@@ -262,7 +262,7 @@
             const columnName = input ? input.name : '';
             const alias = label ? label.innerText : '';
             const fieldType = input ? input.type : 'emptyspace';
-            const searchTypeOptions = getSearchTypeOptions(fieldType);
+            const searchTypeOptions = getSearchTypeOptionsFromJson(columnName);
 
             if (columnName === 'emptyspace') {
                 return {
@@ -299,20 +299,20 @@
             }
         }
 
-        // Função para obter as opções de tipo de pesquisa com base no tipo de campo
-        function getSearchTypeOptions(fieldType) {
-            switch (fieldType) {
-                case 'datetime-local':
-                    return ['BETWEEN'];
-                case 'text':
-                    return ['EQUAL', 'LIKE', 'NOT LIKE'];
-                case 'number':
-                    return ['EQUAL', 'LIKE', 'NOT LIKE'];
-                case 'checkbox':
-                    return [];
-                default:
-                    return [];
+        // Função para obter as opções de tipo de pesquisa com base no JSON de entrada
+        function getSearchTypeOptionsFromJson(columnName) {
+            const jsonInput = document.getElementById('jsonInput').value;
+            let jsonConfig;
+
+            try {
+                jsonConfig = JSON.parse(jsonInput);
+            } catch (e) {
+                alert('JSON inválido. Por favor, verifique o formato do JSON.');
+                return [];
             }
+
+            const field = jsonConfig.find(f => f.ColumnName === columnName);
+            return field ? field.SearchTypeOptions : [];
         }
 
         // Função para mapear o tipo de campo de entrada para o tipo de campo JSON
