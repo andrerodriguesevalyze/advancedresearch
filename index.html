@@ -1,15 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário Dinâmico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/introjs.min.css">
     <style>
         body {
             display: flex;
             justify-content: space-between;
             padding: 20px;
             font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
         }
 
         .field_section, .group_section {
@@ -18,32 +21,34 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-        }
-
-        .input_container {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-            width: 23%;
-            position: relative;
-        }
-
-        .input_field {
-            padding: 8px;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
         }
 
         .form_group {
             border: 1px dashed #999;
             padding: 15px;
             margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
+            background-color: #fafafa;
+            border-radius: 8px;
+        }
+
+        .input_container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input_field {
+            padding: 10px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         .form_group_title {
@@ -51,6 +56,7 @@
             font-weight: bold;
             margin-bottom: 10px;
             width: 100%;
+            grid-column: span 4;
         }
 
         .button {
@@ -74,30 +80,51 @@
             padding: 10px;
             border: 1px solid #ccc;
             margin-top: 10px;
+            border-radius: 4px;
         }
+
+        textarea {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .button-tutorial {
+            background-color: #28a745; /* Cor de fundo específica para o botão de tutorial */
+            border: 2px solid #218838; /* Borda específica para o botão de tutorial */
+        }
+
+            .button-tutorial:hover {
+                background-color: #218838; /* Cor de fundo ao passar o mouse */
+            }
     </style>
 </head>
 <body>
-
-    <div class="group_section">
+    <div class="group_section" data-intro="Aqui podemos organizar os campos para a pesquisa avançada." data-step="4">
         <h2>Ordem de campos - Pesquisa Avançada</h2>
-        <div id="groupContainer" class="form_group">
-            <div class="form_group_title">Campos</div>
+        <div id="groupContainer" class="form_group" >
+            <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5" >Campos</div>
         </div>
-        <button class="button" onclick="addEmptySpace()">Adicionar Espaço Vazio</button>
-        <button class="button" id="generateJsonButton">Gerar JSON</button>
+        <button class="button" onclick="addEmptySpace()" data-intro="Clique aqui para adicionar um espaço vazio." data-step="6">Adicionar Espaço Vazio</button>
+        <button class="button" id="generateJsonButton" data-intro="Após ordenar os campos, carregue em Gerar JSON" data-step="7">Gerar JSON</button>
         <pre id="jsonOutput"></pre>
     </div>
 
-    <div class="field_section">
+    <div class="field_section" >
+        <button class="button button-tutorial" onclick="startIntro()">Iniciar Tutorial</button>
+
+
         <h2>Campos a Mapear</h2>
-        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..."></textarea>
-        <button class="button" onclick="loadJson()">Carregar JSON</button>
-        <div id="fieldsContainer" class="form_group">
+        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..." data-intro="Colar os campos num formato válido Json" data-step="1" ></textarea>
+        <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">Carregar JSON</button>
+        <div id="fieldsContainer" class="form_group" data-intro="Os campos são gerados de acordo com o JSON fornecido" data-step="3">
             <!-- Campos do formulário serão gerados aqui -->
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script>
         // Inicializa o SortableJS para os contêineres
@@ -114,13 +141,19 @@
         // Função para adicionar um campo vazio desabilitado
         function addEmptySpace() {
             const groupContainer = document.getElementById('groupContainer');
+            const emptySpace = createEmptySpace();
+            groupContainer.appendChild(emptySpace);
+        }
+
+        // Função para criar um campo vazio
+        function createEmptySpace() {
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                <label for="emptyspace">Empty Space</label>
-                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-            `;
-            groupContainer.appendChild(emptySpace);
+                            <label for="emptyspace">Empty Space</label>
+                            <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                        `;
+            return emptySpace;
         }
 
         // Função para carregar o JSON e gerar os campos dinamicamente
@@ -139,49 +172,63 @@
             fieldsContainer.innerHTML = ''; // Limpa os campos existentes
 
             jsonConfig.forEach(field => {
-                const fieldWrapper = document.createElement('div');
-                fieldWrapper.className = 'input_container';
-
-                const label = document.createElement('label');
-                label.innerText = field.Alias;
-                fieldWrapper.appendChild(label);
-
-                let input;
-                switch (field.FieldType) {
-                    case 'input':
-                        input = document.createElement('input');
-                        input.type = 'text';
-                        break;
-                    case 'datetime':
-                        input = document.createElement('input');
-                        input.type = 'datetime-local';
-                        break;
-                    case 'number':
-                        input = document.createElement('input');
-                        input.type = 'number';
-                        break;
-                    case 'checkbox':
-                        input = document.createElement('input');
-                        input.type = 'checkbox';
-                        break;
-                    case 'emptyspace':
-                        input = document.createElement('div');
-                        input.style.height = '20px';
-                        break;
-                    default:
-                        input = document.createElement('input');
-                        input.type = 'text';
-                }
-
-                input.name = field.ColumnName;
-                input.className = 'input_field';
-                fieldWrapper.appendChild(input);
+                const fieldWrapper = createFieldWrapper(field);
                 fieldsContainer.appendChild(fieldWrapper);
             });
         }
 
+        // Função para criar um campo baseado no JSON
+        function createFieldWrapper(field) {
+            const fieldWrapper = document.createElement('div');
+            fieldWrapper.className = 'input_container';
+
+            const label = document.createElement('label');
+            label.innerText = field.Alias;
+            fieldWrapper.appendChild(label);
+
+            const input = createInputField(field);
+            fieldWrapper.appendChild(input);
+
+            return fieldWrapper;
+        }
+
+        // Função para criar um campo de entrada baseado no tipo
+        function createInputField(field) {
+            let input;
+            switch (field.FieldType) {
+                case 'input':
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    break;
+                case 'datetime':
+                    input = document.createElement('input');
+                    input.type = 'datetime-local';
+                    break;
+                case 'number':
+                    input = document.createElement('input');
+                    input.type = 'number';
+                    break;
+                case 'checkbox':
+                    input = document.createElement('input');
+                    input.type = 'checkbox';
+                    break;
+                case 'emptyspace':
+                    input = document.createElement('div');
+                    input.style.height = '20px';
+                    break;
+                default:
+                    input = document.createElement('input');
+                    input.type = 'text';
+            }
+
+            input.name = field.ColumnName;
+            input.className = 'input_field';
+            return input;
+        }
+
         document.getElementById('generateJsonButton').addEventListener('click', generateJson);
 
+        // Função para gerar o JSON com base nos campos
         function generateJson() {
             const leftContainer = document.getElementById('groupContainer');
             const fields = leftContainer.querySelectorAll('.input_container');
@@ -189,47 +236,8 @@
             let order = 1;
 
             fields.forEach(field => {
-                const label = field.querySelector('label');
-                const input = field.querySelector('input');
-                const columnName = input ? input.name : '';
-                const alias = label ? label.innerText : '';
-                const fieldType = input ? input.type : 'emptyspace';
-                const searchTypeOptions = getSearchTypeOptions(fieldType);
-
-                if (columnName === 'emptyspace') {
-                    jsonConfig.push({
-                        ColumnName: "",
-                        Alias: "",
-                        FieldType: "emptyspace",
-                        Category: "system",
-                        SearchTypeOptions: [],
-                        SearchType: null,
-                        SearchValue: false,
-                        IsSearchFilter: true,
-                        SearchOrder: order,
-                        IsOutput: false,
-                        OutputOrder: order,
-                        FieldValues: null,
-                        Attributes: null
-                    });
-                } else {
-                    jsonConfig.push({
-                        ColumnName: columnName,
-                        Alias: alias,
-                        FieldType: mapFieldType(fieldType),
-                        Category: getCategory(columnName), // Ajuste a categoria conforme necessário
-                        SearchTypeOptions: searchTypeOptions,
-                        SearchType: null,
-                        SearchValue: fieldType === 'datetime-local' ? { min: null, max: null } : null,
-                        IsSearchFilter: true,
-                        SearchOrder: order,
-                        IsOutput: true,
-                        OutputOrder: order,
-                        FieldValues: null,
-                        Attributes: null
-                    });
-                }
-
+                const fieldData = extractFieldData(field, order);
+                jsonConfig.push(fieldData);
                 order++;
             });
 
@@ -247,6 +255,51 @@
             document.getElementById('jsonOutput').textContent = JSON.stringify(jsonOutput, null, 2);
         }
 
+        // Função para extrair dados de um campo
+        function extractFieldData(field, order) {
+            const label = field.querySelector('label');
+            const input = field.querySelector('input');
+            const columnName = input ? input.name : '';
+            const alias = label ? label.innerText : '';
+            const fieldType = input ? input.type : 'emptyspace';
+            const searchTypeOptions = getSearchTypeOptions(fieldType);
+
+            if (columnName === 'emptyspace') {
+                return {
+                    ColumnName: "",
+                    Alias: "",
+                    FieldType: "emptyspace",
+                    Category: "system",
+                    SearchTypeOptions: [],
+                    SearchType: null,
+                    SearchValue: false,
+                    IsSearchFilter: true,
+                    SearchOrder: order,
+                    IsOutput: false,
+                    OutputOrder: order,
+                    FieldValues: null,
+                    Attributes: null
+                };
+            } else {
+                return {
+                    ColumnName: columnName,
+                    Alias: alias,
+                    FieldType: mapFieldType(fieldType),
+                    Category: getCategory(columnName), // Ajuste a categoria conforme necessário
+                    SearchTypeOptions: searchTypeOptions,
+                    SearchType: null,
+                    SearchValue: fieldType === 'datetime-local' ? { min: null, max: null } : null,
+                    IsSearchFilter: true,
+                    SearchOrder: order,
+                    IsOutput: true,
+                    OutputOrder: order,
+                    FieldValues: null,
+                    Attributes: null
+                };
+            }
+        }
+
+        // Função para obter as opções de tipo de pesquisa com base no tipo de campo
         function getSearchTypeOptions(fieldType) {
             switch (fieldType) {
                 case 'datetime-local':
@@ -262,6 +315,7 @@
             }
         }
 
+        // Função para mapear o tipo de campo de entrada para o tipo de campo JSON
         function mapFieldType(inputType) {
             switch (inputType) {
                 case 'datetime-local':
@@ -277,6 +331,7 @@
             }
         }
 
+        // Função para obter a categoria de um campo com base no JSON de entrada
         function getCategory(columnName) {
             const jsonInput = document.getElementById('jsonInput').value;
             let jsonConfig;
@@ -291,7 +346,12 @@
             const field = jsonConfig.find(f => f.ColumnName === columnName);
             return field ? field.Category : '';
         }
-    </script>
 
+        // Função para iniciar o guia interativo
+        function startIntro() {
+            introJs().start();
+        }
+
+    </script>
 </body>
 </html>
