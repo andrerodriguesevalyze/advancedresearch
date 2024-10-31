@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário Dinâmico</title>
+    <title>Ordem dos Campos - Pesquisa Avançada</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/introjs.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
     <style>
@@ -141,8 +141,10 @@
         <button class="button button-tutorial" onclick="startIntro()">Iniciar Tutorial</button>
 
         <h2>Campos a Mapear</h2>
-        <textarea id="jsonInput" rows="10" cols="50" placeholder="Cole o JSON aqui..." data-intro="Colar os campos num formato válido Json" data-step="1"></textarea>
-        <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">Carregar JSON</button>
+        <div data-intro="Colar os campos num formato válido Json" data-step="1">
+            <textarea id="jsonInput" rows="10" cols="50"  ></textarea>
+        </div>
+            <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">Carregar JSON</button>
         <div id="fieldsContainer" class="form_group" data-intro="Os campos são gerados de acordo com o JSON fornecido" data-step="3">
             <!-- Campos do formulário serão gerados aqui -->
         </div>
