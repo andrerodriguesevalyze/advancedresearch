@@ -6,18 +6,22 @@
     <title>Ordem dos Campos - Pesquisa Avançada</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/introjs.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css" />
+
     <style>
         body {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             padding: 20px;
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
             color: #333;
         }
 
+
         .field_section, .group_section {
-            width: 45%;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -68,11 +72,17 @@
             color: #fff;
             border: none;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
+            align-items: center;
+            gap: 5px;
+            width: 300px;
+            height: 43px;
+            align-self: center;
         }
 
             .button:hover {
                 background-color: #0056b3;
+                transform: scale(1.05);
             }
 
         #jsonOutput {
@@ -83,6 +93,7 @@
             margin-top: 10px;
             border-radius: 4px;
             position: relative;
+            overflow: auto;
         }
 
         #copyButton {
@@ -96,11 +107,21 @@
             color: #fff;
             border: none;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
         }
+
+            #copyButton i {
+                margin-right: 5px;
+            }
 
             #copyButton:hover {
                 background-color: #218838;
+                transform: scale(1.05);
             }
 
         .CodeMirror {
@@ -108,7 +129,7 @@
             border-radius: 4px;
             height: 200px;
             max-height: 300px; /* Define a altura máxima */
-            overflow: auto; 
+            overflow: auto;
         }
 
         .button-tutorial {
@@ -119,42 +140,161 @@
             .button-tutorial:hover {
                 background-color: #218838;
             }
-     
-      
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .input_field:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        #minifyJsonButton {
+            position: absolute;
+            top: 10px;
+            right: 50px; /* Ajuste conforme necessário */
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: #ffc107;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+        }
+
+            #minifyJsonButton i {
+                margin-right: 5px;
+            }
+
+            #minifyJsonButton:hover {
+                background-color: #e0a800;
+                transform: scale(1.05);
+            }
+
+        #beautifyJsonButton {
+            position: absolute;
+            top: 10px;
+            right: 90px; /* Ajuste conforme necessário */
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: #17a2b8;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+        }
+
+            #beautifyJsonButton i {
+                margin-right: 5px;
+            }
+
+            #beautifyJsonButton:hover {
+                background-color: #138496;
+                transform: scale(1.05);
+            }
     </style>
 </head>
 <body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
+
     <div class="group_section" data-intro="Aqui podemos organizar os campos para a pesquisa avançada." data-step="4">
         <h2>Ordem de campos - Pesquisa Avançada</h2>
         <div id="groupContainer" class="form_group">
             <div class="form_group_title" data-intro="Mover os campos gerados via JSON para aqui." data-step="5">Campos</div>
         </div>
-        <button class="button" onclick="addEmptySpace()" data-intro="Clique aqui para adicionar um espaço vazio." data-step="6">Adicionar Espaço Vazio</button>
-        <button class="button" id="generateJsonButton" data-intro="Após ordenar os campos, carregue em Gerar JSON" data-step="7">Gerar JSON</button>
+
+        <button class="button" onclick="addEmptySpace()" data-intro="Clique aqui para adicionar um espaço vazio." data-step="6">
+            <i class="fas fa-plus"></i> Adicionar Espaço Vazio
+        </button>
+
+
+
+        <button class="button" id="generateJsonButton" data-intro="Após ordenar os campos, carregue em Gerar JSON" data-step="7">
+            <i class="fas fa-code"></i> Gerar JSON
+        </button>
+
         <pre id="jsonOutput">
-        <button id="copyButton" onclick="copyJson()">Copiar</button>
+        <button class="button" id="copyButton" onclick="copyJson()" data-tippy-content="Copiar JSON">
+        <i class="fas fa-copy"></i> 
+</button>
+<button class="button" id="minifyJsonButton" onclick="minifyJson()" data-tippy-content="Compactar o Json">
+        <i class="fas fa-compress"></i> 
+</button>
+<button class="button" id="beautifyJsonButton" onclick="beautifyJson()" data-tippy-content="Formatar JSON">
+        <i class="fas fa-expand"></i> 
+</button>
         <code id="jsonContent"></code>
         </pre>
     </div>
 
     <div class="field_section">
-        <button class="button button-tutorial" onclick="startIntro()">Iniciar Tutorial</button>
+
+        <button class="button button-tutorial" onclick="startIntro()">
+            <i class="fas fa-play"></i> Iniciar Tutorial
+        </button>
 
         <h2>Campos a Mapear</h2>
         <div data-intro="Colar os campos num formato válido Json" data-step="1">
-            <textarea id="jsonInput" rows="10" cols="50"  ></textarea>
+            <textarea id="jsonInput" rows="10" cols="50"></textarea>
         </div>
-            <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">Carregar JSON</button>
+        <button class="button" onclick="loadJson()" data-intro="Clique aqui para carregar os campos a partir do JSON." data-step="2">
+            <i class="fas fa-upload"></i> Carregar JSON
+        </button>
         <div id="fieldsContainer" class="form_group" data-intro="Os campos são gerados de acordo com o JSON fornecido" data-step="3">
             <!-- Campos do formulário serão gerados aqui -->
         </div>
+
     </div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchtags.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+
     <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            tippy('#copyButton', {
+                placement: 'top',
+            });
+            tippy('#minifyJsonButton', {
+                placement: 'top',
+            });
+            tippy('#beautifyJsonButton', {
+                placement: 'top',
+            });
+        });
+
         new Sortable(document.getElementById('fieldsContainer'), {
             group: 'shared',
             animation: 150
@@ -177,9 +317,9 @@
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                    <label for="emptyspace">Empty Space</label>
-                    <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-                `;
+                                                            <label for="emptyspace">Empty Space</label>
+                                                            <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                                                        `;
             return emptySpace;
         }
 
@@ -191,7 +331,8 @@
             try {
                 jsonConfig = JSON.parse(jsonInput);
             } catch (e) {
-                alert('JSON inválido. Por favor, verifique o formato do JSON.');
+                alertify.error('JSON inválido. Por favor, verifique o formato do JSON.');
+
                 return;
             }
 
@@ -217,6 +358,30 @@
             fieldWrapper.appendChild(input);
 
             return fieldWrapper;
+        }
+
+        function minifyJson() {
+            const jsonContent = document.getElementById('jsonContent').textContent;
+            try {
+                const jsonObject = JSON.parse(jsonContent);
+                const minifiedJson = JSON.stringify(jsonObject);
+                document.getElementById('jsonContent').textContent = minifiedJson;
+                alertify.success('JSON compactado com sucesso.');
+            } catch (e) {
+                alertify.error('JSON inválido. Por favor, verifique o formato do JSON.');
+            }
+        }
+
+        function beautifyJson() {
+            const jsonContent = document.getElementById('jsonContent').textContent;
+            try {
+                const jsonObject = JSON.parse(jsonContent);
+                const beautifiedJson = JSON.stringify(jsonObject, null, 4);
+                document.getElementById('jsonContent').textContent = beautifiedJson;
+                alertify.success('JSON formatado com sucesso.');
+            } catch (e) {
+                alertify.error('JSON inválido. Por favor, verifique o formato do JSON.');
+            }
         }
 
         // Função para criar um campo de entrada baseado no tipo
@@ -280,6 +445,16 @@
             };
 
             document.getElementById('jsonContent').textContent = JSON.stringify(jsonOutput, null, 2);
+            alertify.success('JSON gerado com sucesso.');
+        }
+
+        function copyJson() {
+            const jsonOutput = document.getElementById('jsonContent').textContent;
+            navigator.clipboard.writeText(jsonOutput).then(() => {
+                alertify.success('JSON copiado para a área de transferência!');
+            }).catch(err => {
+                alertify.error('Erro ao copiar JSON: ' + err);
+            });
         }
 
         // Função para extrair dados de um campo
@@ -379,15 +554,7 @@
             introJs().start();
         }
 
-        // Função para copiar o JSON para a área de transferência
-        function copyJson() {
-            const jsonOutput = document.getElementById('jsonContent').textContent;
-            navigator.clipboard.writeText(jsonOutput).then(() => {
-                alert('JSON copiado para a área de transferência!');
-            }).catch(err => {
-                alert('Erro ao copiar JSON: ' + err);
-            });
-        }
+ 
 
         // Inicializar CodeMirror no campo textarea
         var editor;
@@ -400,6 +567,13 @@
                 theme: "default"
             });
         });
+
+
     </script>
+    <footer class="footer">
+        <p></p>
+    </footer>
 </body>
+
+
 </html>
