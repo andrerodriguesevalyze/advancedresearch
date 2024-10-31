@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário Dinâmico</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/introjs.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
     <style>
         body {
             display: flex;
@@ -102,12 +103,12 @@
                 background-color: #218838;
             }
 
-        textarea {
+        .CodeMirror {
             border: 1px solid #ccc;
             border-radius: 4px;
-            padding: 10px;
-            font-size: 14px;
-            resize: vertical;
+            height: 200px;
+            max-height: 300px; /* Define a altura máxima */
+            overflow: auto; 
         }
 
         .button-tutorial {
@@ -147,8 +148,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
     <script>
-
         new Sortable(document.getElementById('fieldsContainer'), {
             group: 'shared',
             animation: 150
@@ -171,15 +173,15 @@
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                                <label for="emptyspace">Empty Space</label>
-                                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-                            `;
+                    <label for="emptyspace">Empty Space</label>
+                    <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                `;
             return emptySpace;
         }
 
         // Função para carregar o JSON e gerar os campos dinamicamente
         function loadJson() {
-            const jsonInput = document.getElementById('jsonInput').value;
+            const jsonInput = editor.getValue();
             let jsonConfig;
 
             try {
@@ -322,7 +324,7 @@
 
         // Função para obter as opções de tipo de pesquisa com base no JSON de entrada
         function getSearchTypeOptionsFromJson(columnName) {
-            const jsonInput = document.getElementById('jsonInput').value;
+            const jsonInput = editor.getValue();
             let jsonConfig;
 
             try {
@@ -354,7 +356,7 @@
 
         // Função para obter a categoria de um campo com base no JSON de entrada
         function getCategory(columnName) {
-            const jsonInput = document.getElementById('jsonInput').value;
+            const jsonInput = editor.getValue();
             let jsonConfig;
 
             try {
@@ -383,6 +385,17 @@
             });
         }
 
+        // Inicializar CodeMirror no campo textarea
+        var editor;
+        document.addEventListener('DOMContentLoaded', (event) => {
+            editor = CodeMirror.fromTextArea(document.getElementById('jsonInput'), {
+                mode: "application/json",
+                lineNumbers: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                theme: "default"
+            });
+        });
     </script>
 </body>
 </html>
