@@ -8,8 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 
     <style>
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        button.dark-mode-toggle {
+            background-color: #333;
+            color: #fff;
+        }
         body {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -18,16 +29,25 @@
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
             color: #333;
+            font-family: 'Poppins', sans-serif;
+        }
+        h1, h2, h3 {
+            font-weight: 600;
         }
 
-
+        p, span {
+            line-height: 1.6;
+        }
+        a, .button, .input_field {
+            transition: all 0.3s ease-in-out;
+        }
         .field_section, .group_section {
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
             background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             border-radius: 8px;
         }
 
@@ -153,7 +173,7 @@
 
         .input_field:focus {
             border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             outline: none;
         }
 
@@ -213,33 +233,32 @@
                 transform: scale(1.05);
             }
 
-        .field_group {
-            padding: 20px;
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .input_field:focus, .button:focus {
+            outline: 2px solid #0056d2;
+            outline-offset: 2px;
         }
 
-            .field_group .input_container {
-                display: flex;
-                flex-direction: column;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
 
-            .field_group .input_field {
-                padding: 10px;
-                font-size: 14px;
-                width: 100%;
-                box-sizing: border-box;
-                border: 1px solid #ccc;
-                border-radius: 4px;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
+
+        .field_section, .group_section {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+    
     </style>
 </head>
 <body>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
 
@@ -330,7 +349,7 @@
             animation: 150
         });
 
-         //Função para adicionar um campo vazio desabilitado
+        //Função para adicionar um campo vazio desabilitado
         function addEmptySpace() {
             const groupContainer = document.getElementById('groupContainer');
             const emptySpace = createEmptySpace();
@@ -343,9 +362,9 @@
             const emptySpace = document.createElement('span');
             emptySpace.className = 'input_container';
             emptySpace.innerHTML = `
-                                                                <label for="emptyspace">Empty Space</label>
-                                                                <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
-                                                            `;
+                                                                        <label for="emptyspace">Empty Space</label>
+                                                                        <input type="text" id="emptyspace" name="emptyspace" class="input_field" disabled>
+                                                                    `;
             return emptySpace;
         }
 
@@ -530,17 +549,17 @@
         // Função para obter as opções de tipo de pesquisa com base no JSON de entrada
         function getSearchTypeOptionsFromJson(columnName) {
 
-            if (!editor) {           
-            const jsonInput = editor?.getValue();
-            let jsonConfig;
-            try {
-                jsonConfig = JSON.parse(jsonInput);
-            } catch (e) {
-                alert('JSON inválido. Por favor, verifique o formato do JSON.');
-                return [];
-            }
+            if (!editor) {
+                const jsonInput = editor?.getValue();
+                let jsonConfig;
+                try {
+                    jsonConfig = JSON.parse(jsonInput);
+                } catch (e) {
+                    alert('JSON inválido. Por favor, verifique o formato do JSON.');
+                    return [];
+                }
 
-            const field = jsonConfig.find(f => f.ColumnName === columnName);
+                const field = jsonConfig.find(f => f.ColumnName === columnName);
                 return field ? field.SearchTypeOptions : [];
             }
         }
